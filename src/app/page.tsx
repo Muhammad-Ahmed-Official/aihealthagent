@@ -2,10 +2,15 @@
 
 import { motion } from "motion/react";
 import FeatureBentoGrid from "./_components/FeatureBentoGrid";
+import { UserButton, useUser } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import logo from "../../public/logo.png"
+import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="relative my-10 flex flex-col items-center justify-center">
+    <div className="relative pb-5 flex flex-col items-center justify-center">
       <Navbar />
       <div className="absolute inset-y-0 left-0 h-full w-px bg-neutral-200/80 dark:bg-neutral-800/80">
         <div className="absolute top-0 h-40 w-px bg-gradient-to-b from-transparent via-blue-500 to-transparent" />
@@ -17,8 +22,8 @@ export default function Home() {
         <div className="absolute mx-auto h-px w-40 bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
       </div>
       <div className="px-4 py-10 md:py-20">
-        <h1 className="relative z-10 mx-auto max-w-4xl text-center text-2xl font-bold text-slate-700 md:text-4xl lg:text-7xl dark:text-slate-300">
-          {" Revolutionize Patient Care with AI Voice Agents"
+        <h1 className="relative z-10 mx-auto max-w-4xl text-center text-2xl font-semibold text-slate-700 md:text-4xl lg:text-7xl dark:text-slate-300">
+          {"Transform Healthcare with AI Medical Voice Agents"
             .split(" ")
             .map((word, index) => (
               <motion.span
@@ -47,31 +52,27 @@ export default function Home() {
             duration: 0.3,
             delay: 0.8,
           }}
-          className="relative z-10 mx-auto max-w-xl py-4 text-center text-lg font-normal text-neutral-600 dark:text-neutral-400"
-        >
-          Deliver instant, accurate mdeical assistance through natural voice conversations.
-          Automate appoitment sheduling, sympton triage. and follow-up care-24/7. 
+          className="relative z-10 mx-auto max-w-xl py-4 text-center text-lg font-normal text-neutral-600 dark:text-neutral-400">
+          Provide 24/7 intelligent medical support using conversational AI. Triage symptoms, book appointments and deliver empathetic care with voice-first automation. 
         </motion.p>
-        <motion.div
-          initial={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 1,
-          }}
-          transition={{
-            duration: 0.3,
-            delay: 1,
-          }}
-          className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-4"
-        >
-          <button className="w-60 transform rounded-lg bg-black px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200">
-            Explore Now
-          </button>
-          <button className="w-60 transform rounded-lg border border-gray-300 bg-white px-6 py-2 font-medium text-black transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-100 dark:border-gray-700 dark:bg-black dark:text-white dark:hover:bg-gray-900">
-            Contact Support
-          </button>
-        </motion.div>
+        <Link href={'/sign-in'}>
+          <motion.div
+            initial={{
+              opacity: 0,
+            }}
+            animate={{
+              opacity: 1,
+            }}
+            transition={{
+              duration: 0.3,
+              delay: 1,
+            }}
+            className="relative z-10 mt-8 flex flex-wrap items-center justify-center gap-4">
+              <button className="w-60 transform rounded-lg bg-black px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 cursor-pointer">
+                Get Started
+              </button>
+          </motion.div>
+        </Link>
         <motion.div
           initial={{
             opacity: 0,
@@ -104,15 +105,25 @@ export default function Home() {
 }
 
 const Navbar = () => {
+  const { user } = useUser();
+
   return (
     <nav className="flex w-full items-center justify-between border-t border-b border-neutral-200 px-4 py-4 dark:border-neutral-800">
       <div className="flex items-center gap-2">
-        <div className="size-7 rounded-full bg-gradient-to-br from-violet-500 to-pink-500" />
-        <h1 className="text-base font-bold md:text-2xl">Aceternity UI</h1>
+        <Image src={logo} alt="logo" height={30} width={30} />
+        {/* <div className="size-7 rounded-full bg-gradient-to-br from-violet-500 to-pink-500" /> */}
+        <h1 className="text-base font-bold md:text-2xl">Healio</h1>
       </div>
-      <button className="w-24 transform rounded-lg bg-black px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 md:w-32 dark:bg-white dark:text-black dark:hover:bg-gray-200">
-        Login
-      </button>
+      {
+        !user ? 
+        <Link href={'/sign-in'}>
+          <Button variant="secondary">Login</Button> 
+        </Link> : 
+        <div className="flex gap-5 items-center"> 
+          <UserButton /> 
+          <Button>Dashabord</Button>
+        </div>
+      }
     </nav>
   );
 };
