@@ -6,6 +6,8 @@ import { currentUser } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
+
+
 export const POST = asyncHandler(async (request:NextRequest):Promise<NextResponse> => {
     const user = await currentUser();
 
@@ -17,7 +19,7 @@ export const POST = asyncHandler(async (request:NextRequest):Promise<NextRespons
             email: user?.primaryEmailAddress?.emailAddress!,
             credits: 10,
         }).returning()
-        return nextResponse(201, "Account created Successfully", result)
+        return nextResponse(201, "Account created Successfully", result[0]);
     }
     return nextResponse(200, '', users[0]);
-})
+});

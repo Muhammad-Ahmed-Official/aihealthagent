@@ -5,6 +5,12 @@ import "./globals.css";
 import Provider from "./provider";
 import { Toaster } from "sonner";
 
+export type User = {
+  name: string,
+  email: string,
+  credits: number,
+}
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

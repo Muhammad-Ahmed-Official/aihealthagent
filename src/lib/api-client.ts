@@ -28,8 +28,12 @@ class ApiClient {
     async signUp(){
         return this.fetch("users", {
             method: "POST",
-            // body: data,
         })
+    }
+
+
+    async sessionDetail(sessionId:string){
+        return this.fetch(`session-chat?=${sessionId}`)
     }
 
 
