@@ -9,7 +9,7 @@ export default function DocterAgentList() {
         <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 mt-4'>
             {AIDoctorAgents.map((docter) => (
                 <div key={docter?.id}>
-                    <Card docter={docter} />
+                  <Card docter={docter} id={1} />
                 </div>
             ))}
         </div>

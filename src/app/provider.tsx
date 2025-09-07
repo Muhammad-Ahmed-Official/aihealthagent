@@ -20,8 +20,8 @@ export default function Provider( { children }: Readonly<{ children: ReactNode }
         await asyncHandlerFront(
             async() => {
                 const response:any = await apiClient.signUp();
-                console.log(response.data)
-                setUserDetail(response.data)
+                // console.log(response.data)
+                setUserDetail(response?.data);
             }
         )
     };

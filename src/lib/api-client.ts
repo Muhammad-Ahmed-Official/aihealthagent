@@ -32,6 +32,24 @@ class ApiClient {
     }
 
 
+    async suggestDocter(notes:string){
+        return this.fetch("suggest-docters", {
+            method: "POST",
+            body: notes,
+        })
+    }
+
+
+    async startConsult(data:any){
+        return this.fetch("session-chat", {
+            method: "POST",
+            body: data,
+        })
+    }
+
+
+
+
     async sessionDetail(sessionId:string){
         return this.fetch(`session-chat?=${sessionId}`)
     }
