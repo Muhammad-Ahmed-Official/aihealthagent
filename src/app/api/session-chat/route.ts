@@ -27,8 +27,10 @@ export const GET = asyncHandler(async (request:NextRequest):Promise<NextResponse
     if(!sessionId) return nextError(400, 'Params is Empty');
 
     const user = await currentUser();
+    if(!user) return nextError(401, "Unauthorized");
+
     const result = await db.select().from(sessionChatTable)
     .where(eq(sessionChatTable.sessionId, sessionId))
 
-    return nextResponse(200, '', result);
+    return nextResponse(200, '', result[0]);
 })

@@ -51,7 +51,7 @@ class ApiClient {
 
 
     async sessionDetail(sessionId:string){
-        return this.fetch(`session-chat?=${sessionId}`)
+        return this.fetch(`session-chat?sessionId=${sessionId}`)
     }
 
 
