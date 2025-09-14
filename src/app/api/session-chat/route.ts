@@ -3,7 +3,7 @@ import { sessionChatTable } from "@/config/schema";
 import { asyncHandler } from "@/utils/AsyncHandler";
 import { nextError, nextResponse } from "@/utils/Responses";
 import { currentUser } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = asyncHandler(async (request:NextRequest):Promise<NextResponse> => {
@@ -29,8 +29,15 @@ export const GET = asyncHandler(async (request:NextRequest):Promise<NextResponse
     const user = await currentUser();
     if(!user) return nextError(401, "Unauthorized");
 
-    const result = await db.select().from(sessionChatTable)
-    .where(eq(sessionChatTable.sessionId, sessionId))
+    if(sessionId === "all"){
+        const result = await db.select().from(sessionChatTable)
+        .where(eq(sessionChatTable?.createdBy, user?.primaryEmailAddress?.emailAddress!))
+        .orderBy(desc(sessionChatTable.id))
+        return nextResponse(200, '', result);
+    } else {
+        const result = await db.select().from(sessionChatTable)
+        .where(eq(sessionChatTable.sessionId, sessionId))
+        return nextResponse(200, '', result[0]);
+    }
 
-    return nextResponse(200, '', result[0]);
 })

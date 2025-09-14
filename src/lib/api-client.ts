@@ -29,7 +29,7 @@ class ApiClient {
         return this.fetch("users", {
             method: "POST",
         })
-    }
+    };
 
 
     async suggestDocter(notes:string){
@@ -37,7 +37,7 @@ class ApiClient {
             method: "POST",
             body: notes,
         })
-    }
+    };
 
 
     async startConsult(data:any){
@@ -45,13 +45,27 @@ class ApiClient {
             method: "POST",
             body: data,
         })
-    }
-
-
+    };
 
 
     async sessionDetail(sessionId:string){
         return this.fetch(`session-chat?sessionId=${sessionId}`)
+    };
+
+
+    async generateMedicalReport(messages:any){
+        return this.fetch("medical-report", {
+            method: "POST",
+            body: messages,
+        })
+    };
+
+
+    async UserHistoryDetail(){
+        return this.fetch('session-chat?sessionId=all', {
+            method: "POST",
+            // body: ""
+        })
     }
 
 

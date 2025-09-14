@@ -2,11 +2,28 @@
 
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ModelSession from './ModelSession';
+import { asyncHandlerFront } from '@/utils/FrontAsyncHandler';
+import { apiClient } from '@/lib/api-client';
+import Tables from './Tables';
 
 export default function HistoryList() {
     const [historyList, setHistoryList] = useState([]);
+
+    useEffect(() => {
+      getHistoryList()
+    }, [])
+
+    const getHistoryList = async() => {
+      await asyncHandlerFront(
+        async() => {
+          const result:any = await apiClient.UserHistoryDetail();
+          setHistoryList(result?.data);
+        }
+      )
+    }
+
   return (
     <div className='mt-6'>
         { 
@@ -17,7 +34,9 @@ export default function HistoryList() {
                 <p>It look like you haven't consulted with any docter yet</p>
                 <ModelSession />
             </div> : 
-            <div>List</div> 
+            <div>
+              <Tables />
+            </div> 
         }
     </div>
   )

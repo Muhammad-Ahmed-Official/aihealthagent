@@ -1,29 +1,3 @@
-// import { openai } from "@/config/openAiModel";
-// import { asyncHandler } from "@/utils/AsyncHandler";
-// import { nextResponse } from "@/utils/Responses";
-// import { NextRequest, NextResponse } from "next/server";
-// import { AIDoctorAgents } from "../../../../shared/list";
-
-// export const POST = asyncHandler(async (request:NextRequest):Promise<NextResponse> => {
-//     const { notes } = await request.json();
-
-//     const completion = await openai.chat.completions.create({
-//         model: "google/gemini-2.5-pro",
-//         messages: [
-//             { role: "system", content: JSON.stringify(AIDoctorAgents) },
-//             { role: "user", content: `User Notes/Symptoms: ${notes}. Based on user notes, suggest list of doctors. Return a **valid JSON array only**. Use double quotes for all keys and string values.Do not include any explanation or extra text.`}
-//         ],
-//         response_format: { type: "json_object" }, 
-//         max_tokens: 500,
-//     });
-
-//     const rawResponse = completion.choices[0].message
-//     const response = JSON.parse(rawResponse?.content?.trim().replace('```json', '').replace('```', '')!)
-//     return nextResponse(200, '', response);
-// })
-
-
-
 import { openai } from "@/config/openAiModel";
 import { asyncHandler } from "@/utils/AsyncHandler";
 import { nextResponse } from "@/utils/Responses";
