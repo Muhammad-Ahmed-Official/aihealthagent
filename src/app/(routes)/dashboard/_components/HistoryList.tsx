@@ -29,13 +29,13 @@ export default function HistoryList() {
         { 
             historyList.length == 0 ?
             <div className='flex flex-col items-center justify-center p-5 border-2 border-dashed rounded-2xl'> 
-                <Image src={'/medical-assistance.png'} alt='' width={150} height={150} /> 
+                <Image src={'/medical-assistance.png'} alt='pic' width={150} height={150} /> 
                 <h2 className='font-black text-xl '>No Recent Consultations</h2> 
                 <p>It look like you haven't consulted with any docter yet</p>
                 <ModelSession />
             </div> : 
             <div>
-              <Tables />
+              <Tables historyList={historyList} />
             </div> 
         }
     </div>

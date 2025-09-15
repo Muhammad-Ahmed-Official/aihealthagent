@@ -22,8 +22,8 @@ export default function Home() {
         <div className="absolute mx-auto h-px w-40 bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
       </div>
       <div className="px-4 py-10 md:py-20">
-        <h1 className="relative z-10 mx-auto max-w-4xl text-center text-2xl font-semibold text-slate-700 md:text-4xl lg:text-7xl dark:text-slate-300">
-          {"Transform Healthcare with AI Medical Voice Agents"
+        <h1 className="relative z-10 mx-auto max-w-4xl text-center text-2xl font-semibold text-slate-700 md:text-3xl lg:text-6xl dark:text-slate-300">
+          {"🧠 Transform Healthcare with AI Medical Voice Agents"
             .split(" ")
             .map((word, index) => (
               <motion.span
@@ -120,7 +120,9 @@ const Navbar = () => {
         </Link> : 
         <div className="flex gap-5 items-center"> 
           <UserButton /> 
-          <Button>Dashabord</Button>
+          <Link href={'/dashboard'}>
+            <Button>Dashabord</Button>
+          </Link>
         </div>
       }
     </nav>

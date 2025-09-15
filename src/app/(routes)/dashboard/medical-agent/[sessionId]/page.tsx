@@ -5,13 +5,13 @@ import { asyncHandlerFront } from '@/utils/FrontAsyncHandler';
 import { useParams, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { docterAgent } from '../../layout';
-import { Circle, Languages, PhoneCall, PhoneOff } from 'lucide-react';
+import { Circle, Loader2, PhoneCall, PhoneOff } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Vapi from '@vapi-ai/web';
 import { toast } from 'sonner';
 
-type sessionDetail = {
+export type sessionDetail = {
   id: number,
   notes: string,
   sessionId: string,
@@ -34,6 +34,7 @@ export default function page() {
   const [currentRoll, setCurrentRoll] = useState<string|null>('');
   const [liveTranscript, setLiveTranscript] = useState<string>();
   const [message, setMessage] = useState<message[]>([]);
+  const [loadingReport, setLoadingReport] = useState(false);
   const router = useRouter();
   
   useEffect(() => {
@@ -48,99 +49,132 @@ export default function page() {
       }
     )
   };
-  
-  
-  const startCall = () => {
-    const vapi = new Vapi(process.env.NEXT_PUBLIC_VAPI_API_KEY!);
 
-    const vapiAgentConfig = {
-      name: "AI Madical Docter Voice Agent",
-      firstMessage: "Hi there! I'm your AI Medical Assistance. I'm here to help you with any health questions or concerns you might have today. How are you feeling?",
-      transcriber: {
-        provider: "assembly-ai",
-        Language: "en",
-      },
-      voice: {
-        provider: "Vapi",
-        voiceId: sessionDetail?.selectedDocter?.voiceId,
-      },
-      model: {
-        provider: "openai",
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
-            content: sessionDetail?.selectedDocter?.agentPrompt,
-          }
-        ]
+
+  const startCall = () => {
+  const vapi = new Vapi(process.env.NEXT_PUBLIC_VAPI_API_KEY!);
+
+  const vapiAgentConfig = {
+    name: "AI Medical Doctor Voice Agent",
+    firstMessage: "Hi there! I'm your AI Medical Assistance. I'm here to help you with any health questions or concerns you might have today. How are you feeling?",
+    transcriber: {
+      provider: "assembly-ai",
+      language: "en",
+    },
+    voice: {
+      provider: "vapi",
+      voiceId: sessionDetail?.selectedDocter?.voiceId,
+    },
+    model: {
+      provider: "openai",
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: sessionDetail?.selectedDocter?.agentPrompt,
+        },
+      ],
+    },
+  };
+
+  vapi.start(vapiAgentConfig as any);
+
+  vapi.on('call-start', () => {
+    console.log('Call started');
+    setCallStarted(true);
+  });
+  vapi.on('call-end', () => {
+    console.log('Call ended');
+    setCallStarted(false);
+  });
+  vapi.on('message', (message) => {
+    if (message.type === 'transcript') {
+      const { role, transcriptType, transcript } = message;
+      console.log(`${message.role}: ${message.transcript}`);
+      if (transcriptType === 'partial') {
+        setLiveTranscript(transcript);
+        setCurrentRoll(role);
+      } else if (transcriptType === 'final') {
+        setMessage((prev: any) => [...prev, { role: role, text: transcript }]);
+        setLiveTranscript("");
+        setCurrentRoll(null);
       }
     }
-    vapi.start(vapiAgentConfig as any)
-    // vapi.start(process.env.NEXT_PUBLIC_VAPI_VOICE_ASSISTANT_ID);
-    
-    vapi.on('call-start', () => { console.log('Call started') 
-      setCallStarted(!callStarted);
-    });
-    vapi.on('call-end', () => { console.log('Call ended'), 
-      setCallStarted(!callStarted)
-    });
-    vapi.on('message', (message) => {
-      if (message.type === 'transcript') {
-        const { role, transcriptType, transcript } = message;
-        console.log(`${message.role}: ${message.transcript}`);
-        if(transcriptType === 'partial'){
-          setLiveTranscript(transcript);
-          setCurrentRoll(role);
-        } else if(transcriptType === 'final') {
-          setMessage((prev:any) => [...prev, {role: role, text: transcript}]);
-          setLiveTranscript("");
-          setCurrentRoll(null);
-        }
-      }
-    });
-    
-    vapiInstance.on('speech-start', () => {
-      console.log('Assistant started speaking');
-      setCurrentRoll('assistance');
-    });
-    vapiInstance.on('speech-end', () => {
-      console.log('Assistant stopped speaking');
-      setCurrentRoll('user');
-    });
+  });
 
-    setVapiInstance(vapi);
+  vapi.on('speech-start', () => {
+    console.log('Assistant started speaking');
+    setCurrentRoll('assistant');
+  });
+  vapi.on('speech-end', () => {
+    console.log('Assistant stopped speaking');
+    setCurrentRoll('user');
+  });
+
+  setVapiInstance(vapi);
   };
 
-  const endCall = async() => {
-    if (!vapiInstance) return;
+  
+  // const endCall = async () => {
+  //   if (!vapiInstance) return;
 
-    vapiInstance.stop();
-    vapiInstance.off('call-start');
-    vapiInstance.off('call-end');
-    vapiInstance.off('message');
-    vapiInstance.off('speech-start');
-    vapiInstance.off('speech-end');
-    setCallStarted(false);
-    setVapiInstance(null);
+  //   vapiInstance.stop();
+  //   vapiInstance.removeAllListeners?.();
 
-    const result = await generateReport();
-    toast.success("Your report is generated!");
-    router.replace("/dashboard")
-  };
+  //   setCallStarted(false);
+  //   setVapiInstance(null);
+
+  //   setLoadingReport(true);
+
+  //   const result = await generateReport();
+  //   router.replace('/dashboard');
+  // };
+
+
+  // const generateReport = async() => {
+  //   await asyncHandlerFront(
+  //     async() => {
+  //       const payload = {
+  //         messages:message,
+  //         sessionDetail: sessionDetail,
+  //         sessionId: sessionId,
+  //       }
+  //       const result:any = await apiClient.generateMedicalReport(payload);
+  //       return result.data
+  //     }
+  //   )
+  //   setLoadingReport(false);
+  // }
+
 
   const generateReport = async() => {
-    await asyncHandlerFront(
-      async() => {
-        const payload = {
-          messages:message,
-          sessionDetail: sessionDetail,
-          sessionId: sessionId,
-        }
-        const result:any = await apiClient.generateMedicalReport(payload);
-        return result.data
-      }
-    )
-  }
+  return await asyncHandlerFront(
+    async() => {
+      const payload = { messages:message, sessionDetail, sessionId };
+      const result:any = await apiClient.generateMedicalReport(payload);
+      return result.data;
+    }
+  );
+};
+
+const endCall = async () => {
+  if (!vapiInstance) return;
+
+  vapiInstance.stop();
+  vapiInstance.removeAllListeners?.();
+
+  setCallStarted(false);
+  setVapiInstance(null);
+
+  setLoadingReport(true); // show loader
+
+  await generateReport();
+
+  setLoadingReport(false);
+
+  router.replace('/dashboard');
+};
+
 
   return (
     <div className='p-5 border rounded-3xl bg-secondary'>
@@ -161,7 +195,7 @@ export default function page() {
             }
             {liveTranscript && liveTranscript?.length > 0 && <h2 className='text-lg'>{currentRoll} : {liveTranscript}</h2>}
           </div>
-          {!callStarted ? <Button className='mt-20' onClick={startCall} > <PhoneCall /> Start Call</Button> : <Button onClick={endCall} variant={'destructive'} className='mt-20'> <PhoneOff /> End Call</Button>}
+          {!callStarted ? <Button className='mt-20' onClick={startCall} > <PhoneCall /> Start Call</Button> : <Button onClick={endCall} variant={'destructive'} className='mt-20' disabled={loadingReport}>{loadingReport ? ( <> <Loader2 className='animate-spin' /> Generating Report... </> ) :  (<><PhoneOff /> End Call</>)}</Button>}
         </div> 
       }
     </div>

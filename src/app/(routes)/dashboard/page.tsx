@@ -11,7 +11,7 @@ export default function Workspace() {
             <h2 className='font-bold text-2xl'>My Dashaboard</h2>
            <ModelSession />
         </div>
-        <HistoryList />
+        <HistoryList  />
         <DocterAgentList />
     </div>
   )

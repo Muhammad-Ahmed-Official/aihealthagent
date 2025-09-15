@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { asyncHandlerFront } from '@/utils/FrontAsyncHandler'
 import { apiClient } from '@/lib/api-client'
 import Card from './Card'
+import { useAuth } from '@clerk/nextjs'
 
 export default function ModelSession() {
     const [notes, setNotes] = useState<string>('');
@@ -17,6 +18,8 @@ export default function ModelSession() {
     const [suggestedDocter, setSuggestedDockter] = useState<docterAgent[]>([]);
     const [selectedDocter, setSelectedDocter] = useState<docterAgent>();
     const router = useRouter();
+    const { has } = useAuth();
+    const paidUser = has && has({plan: "pro"})
 
     const onClickNext = async () => {
         setLoading(true);
@@ -51,7 +54,7 @@ export default function ModelSession() {
 
   return (
     <Dialog>
-        <DialogTrigger> <Button className='mt-3'>+ Start a Consultation</Button> </DialogTrigger>
+        <DialogTrigger> <Button className='mt-3' disabled={!paidUser}>+ Start a Consultation</Button> </DialogTrigger>
         <DialogContent>
             <DialogHeader>
             <DialogTitle className='text-center pb-2'>{!suggestedDocter?.length ? 'Add Baisc Details' : 'Select the docter'}</DialogTitle>

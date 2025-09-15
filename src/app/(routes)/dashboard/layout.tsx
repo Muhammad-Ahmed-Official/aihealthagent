@@ -8,6 +8,7 @@ export type docterAgent = {
     image: string,
     agentPrompt: string,
     voiceId?: string
+    subscriptionRequired?: boolean,
   }
 
 export default function dashboardLayout({ children} : Readonly<{children:ReactNode}>) {

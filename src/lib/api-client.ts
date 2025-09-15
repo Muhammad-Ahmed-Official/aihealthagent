@@ -62,10 +62,7 @@ class ApiClient {
 
 
     async UserHistoryDetail(){
-        return this.fetch('session-chat?sessionId=all', {
-            method: "POST",
-            // body: ""
-        })
+        return this.fetch('session-chat?sessionId=all')
     }
 
 
