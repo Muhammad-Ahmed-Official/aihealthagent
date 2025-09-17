@@ -5,7 +5,7 @@ import FeatureBentoGrid from "./_components/FeatureBentoGrid";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import logo from "../../public/logo.png"
+import logo from "../../public/logo1.png"
 import Image from "next/image";
 
 export default function Home() {
@@ -92,7 +92,7 @@ export default function Home() {
             <img
               src="https://assets.aceternity.com/pro/aceternity-landing.webp"
               alt="Landing page preview"
-              className="aspect-[16/9] h-auto w-full object-cover"
+              className="aspect-[12/6] h-auto w-full object-cover"
               height={1000}
               width={1000}
             />
