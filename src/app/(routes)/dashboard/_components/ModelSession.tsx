@@ -54,34 +54,54 @@ export default function ModelSession() {
 
   return (
     <Dialog>
-        <DialogTrigger> <Button className='mt-3' disabled={!paidUser}>+ Start a Consultation</Button> </DialogTrigger>
+        <DialogTrigger asChild>
+            <Button className='mt-3' disabled={!paidUser}> + Start a Consultation </Button>
+        </DialogTrigger>
+
         <DialogContent>
             <DialogHeader>
-            <DialogTitle className='text-center pb-2'>{!suggestedDocter?.length ? 'Add Baisc Details' : 'Select the docter'}</DialogTitle>
+            <DialogTitle className='text-center pb-2'> {!suggestedDocter?.length ? 'Add Basic Details' : 'Select the doctor'} </    DialogTitle>
             <DialogDescription asChild>
-                {
-                    !suggestedDocter?.length ? 
-                    <div>
-                        <h2 className='pb-1.5'>Add Symptons or Any other Details</h2>
-                        <Textarea onChange={(e) => setNotes(e.target.value)} placeholder='Add Detail here...' className='mt-1 h-[200px]' />
-                    </div> : 
-                    <div className='grid grid-cols-2 gap-5'>
-                        {suggestedDocter?.map((docter) => (
-                            <Card key={docter?.id} docter={docter} id={2} setSelectedDocter={() => setSelectedDocter(docter)} selectedDocter={selectedDocter} />
-                        ))}
-                    </div> 
-                }
+                {!suggestedDocter?.length ? (
+                <div>
+                    <h2 className='pb-1.5'>Add Symptoms or Any other Details</h2>
+                    <Textarea
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder='Add Detail here...'
+                    className='mt-1 h-[200px]'
+                    />
+                </div>
+                ) : (
+                <div className='grid grid-cols-2 gap-5'>
+                    {suggestedDocter?.map((docter) => (
+                    <Card
+                        key={docter?.id}
+                        docter={docter}
+                        id={2}
+                        setSelectedDocter={() => setSelectedDocter(docter)}
+                        selectedDocter={selectedDocter}
+                    />
+                    ))}
+                </div>
+                )}
             </DialogDescription>
             </DialogHeader>
+
             <DialogFooter>
-                <DialogClose> <Button variant={'outline'}>Cancel</Button> </DialogClose>
-                    { 
-                        !suggestedDocter?.length ? 
-                        <div className='flex items-center'>
-                            <Button disabled={!notes || loading} onClick={onClickNext}> Next {loading ? <Loader2 className='animate-spin' /> : <ArrowRight />} </Button>
-                        </div> :
-                        <Button disabled={loading || !selectedDocter} onClick={() => onStartConsultation()}>Start Consultation {loading ? <Loader2 className='animate-spin' /> : <ArrowRight />}</Button> 
-                    }
+            <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+            </DialogClose>
+
+
+            {!suggestedDocter?.length ? (
+                <div className='flex items-center'>
+                <Button disabled={!notes || loading} onClick={onClickNext}> Next {loading ? <Loader2 className='animate-spin' /> : <ArrowRight />} </Button>
+                </div>
+            ) : (
+                <Button disabled={loading || !selectedDocter} onClick={() => onStartConsultation()}> Start Consultation{' '} 
+                    {loading ? <Loader2 className='animate-spin' /> : <ArrowRight />}
+                </Button>
+            )}
             </DialogFooter>
         </DialogContent>
     </Dialog>

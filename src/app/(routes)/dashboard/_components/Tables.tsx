@@ -1,7 +1,6 @@
 import React from 'react'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { sessionDetail } from '../medical-agent/[sessionId]/page'
-import { Button } from '@/components/ui/button'
 import ViewReportDialog from './ViewReportDialog'
 import Time from '@/utils/Time'
 
@@ -24,7 +23,7 @@ export default function Tables({historyList} : Props) {
             </TableHeader>
             <TableBody>
               {historyList?.map((record:sessionDetail) => (
-                <TableRow>
+                <TableRow key={record?.id}>
                   <TableCell className="font-medium">{record?.selectedDocter?.specialist}</TableCell>
                   <TableCell>{record?.notes}</TableCell>
                   <TableCell>{Time(record?.createdOn)}</TableCell>

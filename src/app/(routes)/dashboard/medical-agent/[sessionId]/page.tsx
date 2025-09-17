@@ -11,11 +11,25 @@ import { Button } from '@/components/ui/button';
 import Vapi from '@vapi-ai/web';
 import { toast } from 'sonner';
 
+export type Report = {
+  sessionId: string;
+  agent: string;
+  user: string;
+  timestamp: string;
+  chiefComplaint: string;
+  summary: string;
+  symptoms: string[];
+  duration: string;
+  severity: string;
+  medicationsMentioned: string[];
+  recommandations: string[];
+};
+
 export type sessionDetail = {
   id: number,
   notes: string,
   sessionId: string,
-  report: string,
+  report: Report,
   selectedDocter: docterAgent,
   createdOn: string,
   voiceId?: string,
@@ -114,38 +128,6 @@ export default function page() {
   setVapiInstance(vapi);
   };
 
-  
-  // const endCall = async () => {
-  //   if (!vapiInstance) return;
-
-  //   vapiInstance.stop();
-  //   vapiInstance.removeAllListeners?.();
-
-  //   setCallStarted(false);
-  //   setVapiInstance(null);
-
-  //   setLoadingReport(true);
-
-  //   const result = await generateReport();
-  //   router.replace('/dashboard');
-  // };
-
-
-  // const generateReport = async() => {
-  //   await asyncHandlerFront(
-  //     async() => {
-  //       const payload = {
-  //         messages:message,
-  //         sessionDetail: sessionDetail,
-  //         sessionId: sessionId,
-  //       }
-  //       const result:any = await apiClient.generateMedicalReport(payload);
-  //       return result.data
-  //     }
-  //   )
-  //   setLoadingReport(false);
-  // }
-
 
   const generateReport = async() => {
   return await asyncHandlerFront(
@@ -166,11 +148,11 @@ const endCall = async () => {
   setCallStarted(false);
   setVapiInstance(null);
 
-  setLoadingReport(true); // show loader
+  setLoadingReport(true);
 
   await generateReport();
-
   setLoadingReport(false);
+  toast.success("Report generated successfully");
 
   router.replace('/dashboard');
 };

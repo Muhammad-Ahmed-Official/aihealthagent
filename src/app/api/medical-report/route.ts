@@ -1,10 +1,10 @@
-import { openai } from "@/config/openAiModel";
 import { asyncHandler } from "@/utils/AsyncHandler";
 import { nextError, nextResponse } from "@/utils/Responses";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/config/db";
 import { sessionChatTable } from "@/config/schema";
 import { eq } from "drizzle-orm";
+import { GoogleGenAI } from "@google/genai";
 
 const REPORT_GEN_PROMPT = `You are an AI Medical Voice Agent that just finished a voice conversation with a user. Based on the docter AI agent info and Conversation between AI medical agent and user, generate a structured report with the following fields
 1. sessionId: a unique session identifier
@@ -20,17 +20,17 @@ const REPORT_GEN_PROMPT = `You are an AI Medical Voice Agent that just finished 
 Return ONLY valid JSON, with no text, no code fences, no explanation.   
 Required structure:
 {
-"sessionId": "string",
-"agent": "string",
-"user": "string",
-"timestamp": "ISO Date string",
-"chiefComplaint": "string",
-"summary": "string",
-"symptoms": ["symptom1", "symptom2"],
-"duration": "string",
-"severity": "string",
-"medicationsMentioned": ["med1", "med2"],
-"recommandations": ["rec1", "rec2"],
+  "sessionId": "string",
+  "agent": "string",
+  "user": "string",
+  "timestamp": "ISO Date string",
+  "chiefComplaint": "string",
+  "summary": "string",
+  "symptoms": ["symptom1", "symptom2"],
+  "duration": "string",
+  "severity": "string",
+  "medicationsMentioned": ["med1", "med2"],
+  "recommandations": ["rec1", "rec2"],
 }
 `;
 
@@ -39,82 +39,39 @@ export const POST = asyncHandler(async (request: NextRequest): Promise<NextRespo
   if (!messages || !sessionDetail || !sessionId) {
     return nextError(400, "Missing fields");
   }
+
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
   const userInput = `AI Doctor Info: ${JSON.stringify(sessionDetail)}, Conversation: ${JSON.stringify(messages)}`;
 
-  const completion = await openai.chat.completions.create({
-    model: "google/gemini-2.5-pro",
-    messages: [
-      { role: "system", content: REPORT_GEN_PROMPT },
-      { role: "user", content: userInput },
-    ],
-    max_tokens: 500,
+  const response = await ai.models.generateContent({
+    model: "gemini-1.5-flash", 
+    contents: `${REPORT_GEN_PROMPT}\n\n${userInput}`,
+    config: {
+      maxOutputTokens: 500, 
+      responseMimeType: "application/json"
+    }
   });
 
-  // 1. Extract the text only
-  let rawResponse = completion.choices?.[0]?.message?.content ?? "";
+  const rawText = response.text;
+  const cleanedText = rawText!
+    .replace(/^```json\s*/i, "")
+    .replace(/```$/i, "")
+    .trim();
 
-  // 2. Remove any code fences / stray backticks
-  rawResponse = rawResponse.replace(/```json|```/gi, "").trim();
-
-  // 3. Parse safely
   let jsonRes;
   try {
-    jsonRes = JSON.parse(rawResponse);
+    jsonRes = JSON.parse(cleanedText);
+    await db
+      .update(sessionChatTable)
+      .set({
+        report: jsonRes,
+        conversation: messages
+      })
+      .where(eq(sessionChatTable.sessionId, sessionId));
   } catch (err) {
-    console.error("Invalid JSON from AI:", rawResponse, err);
-    return nextResponse(500, "AI returned invalid JSON format");
+    console.error("Invalid JSON from AI:", cleanedText);
+    return nextError(500, "AI returned invalid JSON");
   }
-
-
-  await db.update(sessionChatTable).set({
-    report: jsonRes,
-    conversation: messages,
-  }).where(eq(sessionChatTable.sessionId, sessionId));
-
   return nextResponse(200, "", jsonRes);
 });
-
-
-// export const POST = asyncHandler(async (request: NextRequest): Promise<NextResponse> => {
-//   const { messages, sessionDetail, sessionId } = await request.json();
-//   if (!messages || !sessionDetail || !sessionId) return nextError(400, "Missing fields");
-
-//   const userInput = `AI Doctor Info: ${JSON.stringify(sessionDetail)}, Conversation: ${JSON.stringify(messages)}`;
-
-//   const completion = await openai.chat.completions.create({
-//     model: "google/gemini-2.5-pro",
-//     messages: [
-//       { role: "system", content: REPORT_GEN_PROMPT },
-//       { role: "user", content: userInput },
-//     ],
-//     max_tokens: 1000,
-//   });
-
-//   // Step 1: get raw content & strip code fences
-//   let rawResponse = completion.choices?.[0]?.message?.content ?? "";
-//   rawResponse = rawResponse.replace(/```json|```/gi, "").trim();
-
-//   // Step 2: extract just the JSON object between first { … }
-//   const jsonMatch = rawResponse.match(/\{[\s\S]*\}/);
-//   if (!jsonMatch) {
-//     console.error("No JSON found in AI response:", rawResponse);
-//     return nextResponse(500, "AI returned invalid JSON format");
-//   }
-
-//   // Step 3: try to parse
-//   let response;
-//   try {
-//     response = JSON.parse(jsonMatch[0]);
-//   } catch (err) {
-//     console.error("Invalid JSON from AI:", jsonMatch[0], err);
-//     return nextResponse(500, "AI returned invalid JSON format");
-//   }
-
-//   // Step 4: save to DB
-//   await db.update(sessionChatTable).set({
-//     report: response,
-//     conversation: messages,
-//   }).where(eq(sessionChatTable.sessionId, sessionId));
-
-//   return nextResponse(200, "", response);
-// });

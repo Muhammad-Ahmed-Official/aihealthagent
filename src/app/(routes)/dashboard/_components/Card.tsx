@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from '@/components/ui/button';
-import { IconArrowRight } from '@tabler/icons-react';
 import Image from 'next/image';
 import React, { useState } from 'react'
 import { docterAgent } from '../layout';

@@ -1,53 +1,58 @@
-import { openai } from "@/config/openAiModel";
 import { asyncHandler } from "@/utils/AsyncHandler";
 import { nextResponse } from "@/utils/Responses";
 import { NextRequest, NextResponse } from "next/server";
 import { AIDoctorAgents } from "../../../../shared/list";
+import { GoogleGenAI } from "@google/genai";
 
-export const POST = asyncHandler(
-  async (request: NextRequest): Promise<NextResponse> => {
-    const { notes } = await request.json();
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
-    const completion = await openai.chat.completions.create({
-      model: "google/gemini-2.5-pro",
-      messages: [
-        { role: "system", content: JSON.stringify(AIDoctorAgents) },
-        {
-          role: "user",
-          content: `User Notes/Symptoms: ${notes}.
-          Based on user notes, suggest list of doctors.
+export const POST = asyncHandler(async (request: NextRequest): Promise<NextResponse> => {
+  const { notes } = await request.json();
 
-          ⚠️ IMPORTANT: Reply ONLY with a valid JSON array.
-          Use double quotes for all keys and string values.
-          Do not include explanations, comments, or markdown fences.
-          `,
-        },
-      ],
-      // This ensures API (if supported) forces JSON
-      response_format: { type: "json_object" },
-      max_tokens: 1000, // allow enough room for response
-    });
+  const prompt = `
+User Notes/Symptoms: ${notes}.
+Based on user notes, suggest list of doctors.
 
-    const rawResponse = completion.choices?.[0]?.message?.content ?? "";
+⚠️ IMPORTANT: Reply ONLY with a valid JSON array.
+Use double quotes for all keys and string values.
+Do not include explanations, comments, or markdown fences.
+`;
 
-    if (!rawResponse.trim()) {
-      return nextResponse(500, "AI returned an empty response");
+  const response = await ai.models.generateContent({
+    model: "gemini-1.5-flash",
+    contents: [
+      {
+        role: "system", 
+        parts: [
+          { text: JSON.stringify(AIDoctorAgents) }  
+        ]
+      },
+      {
+        role: "user",
+        parts: [
+          { text: prompt }
+        ]
+      }
+    ],
+    config: {
+      maxOutputTokens: 500,
+      responseMimeType: "application/json"
     }
+  });
 
-    // Clean up content just in case the model adds fences
-    const cleaned = rawResponse
-      .trim()
-      .replace(/```json/g, "")
-      .replace(/```/g, "");
+  const rawText = response.text;
+  const cleanedText = rawText!
+    .replace(/^```json\s*/i, "")
+    .replace(/```$/i, "")
+    .trim();
 
-    let response;
-    try {
-      response = JSON.parse(cleaned);
-    } catch (err) {
-      console.error("Invalid JSON from AI:", cleaned);
-      return nextResponse(500, "AI returned invalid JSON format");
-    }
-
-    return nextResponse(200, "Success", response);
+  let jsonRes;
+  try {
+    jsonRes = JSON.parse(cleanedText);
+  } catch (err) {
+    console.error("Invalid JSON from AI:", cleanedText);
+    return nextResponse(500, "AI returned invalid JSON format");
   }
-);
+
+  return nextResponse(200, "Success", jsonRes);
+});
