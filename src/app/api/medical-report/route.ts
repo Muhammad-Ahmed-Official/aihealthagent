@@ -75,3 +75,18 @@ export const POST = asyncHandler(async (request: NextRequest): Promise<NextRespo
   }
   return nextResponse(200, "", jsonRes);
 });
+
+
+
+export const DELETE = asyncHandler(async (request:NextRequest):Promise<NextResponse> => {
+  const { searchParams } = new URL(request.url);
+  const sessionId = searchParams.get("sessionId");
+  if(!sessionId) return nextError(400, "ID is required");
+
+  const isDeleted = await db.delete(sessionChatTable)
+  .where(eq(sessionChatTable.sessionId, sessionId))
+  .returning();
+  if(isDeleted.length === 0) return nextError(404, "No data found");
+
+  return nextResponse(200, "Report deleted successfully");
+})

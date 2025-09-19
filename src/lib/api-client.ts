@@ -61,6 +61,13 @@ class ApiClient {
     };
 
 
+    async deleteMedicalReport(sessionId:string){
+        return this.fetch(`medical-report?sessionId=${sessionId}`, {
+            method: "DELETE"
+        })
+    }
+
+
     async UserHistoryDetail(){
         return this.fetch('session-chat?sessionId=all')
     }

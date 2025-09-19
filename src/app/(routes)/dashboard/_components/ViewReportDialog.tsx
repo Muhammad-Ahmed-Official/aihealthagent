@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from '@/components/ui/button'
 import { sessionDetail } from '../medical-agent/[sessionId]/page'
 import Time from '@/utils/Time'
+import { Eye } from 'lucide-react'
 
 type Props = {
     record: sessionDetail,
@@ -12,9 +13,10 @@ export default function ViewReportDialog({record}:Props) {
   return (
     <Dialog>
     <DialogTrigger asChild>
-        <Button variant="link" size="sm">View Report</Button>
+        <Button variant="ghost" size="sm" className="text-blue-500 hover:bg-blue-50">
+            <Eye className="w-4 h-4" /> View
+        </Button>
     </DialogTrigger>
-
     <DialogContent className="max-w-[800px] h-[95vh] overflow-y-auto bg-white shadow-xl p-6">
         <DialogHeader>
         <DialogTitle>

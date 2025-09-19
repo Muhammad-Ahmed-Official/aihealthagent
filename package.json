@@ -21,6 +21,8 @@
     "dotenv": "^17.2.2",
     "drizzle-orm": "^0.44.5",
     "jsonrepair": "^3.13.0",
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.539.0",
     "motion": "^12.23.12",
     "next": "15.4.6",

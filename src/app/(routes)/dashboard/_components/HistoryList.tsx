@@ -7,9 +7,10 @@ import ModelSession from './ModelSession';
 import { asyncHandlerFront } from '@/utils/FrontAsyncHandler';
 import { apiClient } from '@/lib/api-client';
 import Tables from './Tables';
+import { sessionDetail } from '../medical-agent/[sessionId]/page';
 
 export default function HistoryList() {
-    const [historyList, setHistoryList] = useState([]);
+    const [historyList, setHistoryList] = useState<sessionDetail[]>([]);
 
     useEffect(() => {
       getHistoryList()
@@ -35,7 +36,7 @@ export default function HistoryList() {
                 <ModelSession />
             </div> : 
             <div>
-              <Tables historyList={historyList} />
+              <Tables historyList={historyList} setHistoryList={setHistoryList} />
             </div> 
         }
     </div>

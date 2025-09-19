@@ -7,7 +7,6 @@ import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 
-
 export const POST = asyncHandler(async (request:NextRequest):Promise<NextResponse> => {
     const user = await currentUser();
 
