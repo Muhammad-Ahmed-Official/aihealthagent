@@ -94,17 +94,14 @@ export default function page() {
   vapi.start(vapiAgentConfig as any);
 
   vapi.on('call-start', () => {
-    console.log('Call started');
     setCallStarted(true);
   });
   vapi.on('call-end', () => {
-    console.log('Call ended');
     setCallStarted(false);
   });
   vapi.on('message', (message) => {
     if (message.type === 'transcript') {
       const { role, transcriptType, transcript } = message;
-      console.log(`${message.role}: ${message.transcript}`);
       if (transcriptType === 'partial') {
         setLiveTranscript(transcript);
         setCurrentRoll(role);
@@ -117,11 +114,9 @@ export default function page() {
   });
 
   vapi.on('speech-start', () => {
-    console.log('Assistant started speaking');
     setCurrentRoll('assistant');
   });
   vapi.on('speech-end', () => {
-    console.log('Assistant stopped speaking');
     setCurrentRoll('user');
   });
 
@@ -130,14 +125,15 @@ export default function page() {
 
 
   const generateReport = async() => {
-  return await asyncHandlerFront(
-    async() => {
-      const payload = { messages:message, sessionDetail, sessionId };
-      const result:any = await apiClient.generateMedicalReport(payload);
-      return result.data;
-    }
-  );
-};
+    console.log(loadingReport, " :loading");
+    return await asyncHandlerFront(
+      async() => {
+        const payload = { messages:message, sessionDetail, sessionId };
+        const result:any = await apiClient.generateMedicalReport(payload);
+        return result.data;
+      }
+    );
+  };
 
 const endCall = async () => {
   if (!vapiInstance) return;
@@ -177,7 +173,7 @@ const endCall = async () => {
             }
             {liveTranscript && liveTranscript?.length > 0 && <h2 className='text-lg'>{currentRoll} : {liveTranscript}</h2>}
           </div>
-          {!callStarted ? <Button className='mt-20' onClick={startCall} > <PhoneCall /> Start Call</Button> : <Button onClick={endCall} variant={'destructive'} className='mt-20' disabled={loadingReport}>{loadingReport ? ( <> <Loader2 className='animate-spin' /> Generating Report... </> ) :  (<><PhoneOff /> End Call</>)}</Button>}
+          {!callStarted ? <Button className='mt-20' onClick={startCall} > <PhoneCall /> Start Call</Button> : <Button onClick={endCall} variant={'destructive'} className='mt-20' disabled={loadingReport}>{!loadingReport ? ( <> <Loader2 className='animate-spin' /> Generating Report... </> ) :  (<><PhoneOff /> End Call</>)}</Button>}
         </div> 
       }
     </div>
